@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Website interaktif K-Means Clustering untuk analisis segmentasi pelanggan Mall menggunakan dataset Mall Customers.">
+    <title>K-Means Clustering — Mall Customer Segmentation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+</head>
+<body>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="navbar-brand">
+                <div class="navbar-logo">K</div>
+                <div>
+                    <div class="navbar-title"><span>K-Means</span> Clustering</div>
+                </div>
+            </a>
+            <div class="navbar-badge">📊 Mall Customer Segmentation</div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-badge">🔬 Machine Learning · Unsupervised Learning</div>
+            <h1>
+                Analisis <span class="gradient-text">K-Means Clustering</span><br>
+                Mall Customer Segmentation
+            </h1>
+            <p>
+                Visualisasi interaktif algoritma K-Means Clustering untuk segmentasi pelanggan berdasarkan dataset Mall Customers dari gudang dataset UCI ML Repository.
+            </p>
+
+            <!-- Stats Bar -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-value" id="statRows">{{ total_rows }}</div>
+                    <div class="stat-label">Data Points</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="statFeatures">{{ numeric_cols|length }}</div>
+                    <div class="stat-label">Fitur Numerik</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ columns|length }}</div>
+                    <div class="stat-label">Total Kolom</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">K-Means</div>
+                    <div class="stat-label">Algoritma</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+
+            <!-- ====== Data Preview Section ====== -->
+            <section class="animate-in" style="margin-bottom: 24px;">
+                <div class="glass-card">
+                    <div class="card-header">
+                        <div class="card-icon cyan">📋</div>
+                        <div>
+                            <div class="card-title">Preview Dataset</div>
+                            <div class="card-subtitle">Mall_Customers.csv — 15 baris pertama</div>
+                        </div>
+                    </div>
+                    <div class="data-preview-wrapper">
+                        <table class="results-table" id="dataPreviewTable">
+                            <thead>
+                                <tr>
+                                    <th>Customer ID</th>
+                                    <th>Gender</th>
+                                    <th>Age</th>
+                                    <th>Annual Income (k$)</th>
+                                    <th>Spending Score</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dataPreviewBody">
+                                {% for row in preview %}
+                                <tr>
+                                    <td>{{ row['CustomerID'] }}</td>
+                                    <td>{{ row['Gender'] }}</td>
+                                    <td>{{ row['Age'] }}</td>
+                                    <td>{{ row['Annual Income (k$)'] }}</td>
+                                    <td>{{ row['Spending Score (1-100)'] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Penjelasan Kolom Dataset -->
+                    <div style="margin-top: 20px; padding: 16px; background: rgba(124, 58, 237, 0.06); border: 1px solid rgba(124, 58, 237, 0.12); border-radius: var(--radius-md);">
+                        <div style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">📖 Penjelasan Kolom Dataset</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div style="padding: 10px; background: rgba(15, 22, 41, 0.5); border-radius: 8px;">
+                                <div style="font-size: 13px; font-weight: 600; color: var(--accent-violet-light);">🆔 CustomerID</div>
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Nomor identitas unik setiap pelanggan (1–200)</div>
+                            </div>
+                            <div style="padding: 10px; background: rgba(15, 22, 41, 0.5); border-radius: 8px;">
+                                <div style="font-size: 13px; font-weight: 600; color: var(--accent-cyan-light);">👤 Gender</div>
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Jenis kelamin pelanggan (Male = Laki-laki, Female = Perempuan)</div>
+                            </div>
+                            <div style="padding: 10px; background: rgba(15, 22, 41, 0.5); border-radius: 8px;">
+                                <div style="font-size: 13px; font-weight: 600; color: var(--accent-green);">🎂 Age (Usia)</div>
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Usia pelanggan dalam satuan tahun (18–70 tahun)</div>
+                            </div>
+                            <div style="padding: 10px; background: rgba(15, 22, 41, 0.5); border-radius: 8px;">
+                                <div style="font-size: 13px; font-weight: 600; color: var(--accent-amber);">💰 Annual Income (k$)</div>
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Pendapatan tahunan pelanggan dalam ribuan dolar. Contoh: 15 artinya $15.000/tahun (~Rp 230 juta/tahun)</div>
+                            </div>
+                            <div style="padding: 10px; background: rgba(15, 22, 41, 0.5); border-radius: 8px; grid-column: 1 / -1;">
+                                <div style="font-size: 13px; font-weight: 600; color: var(--accent-rose);">🛍️ Spending Score (1-100)</div>
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Skor belanja yang diberikan oleh pihak mall berdasarkan perilaku dan frekuensi belanja pelanggan. Skala 1–100: semakin tinggi skor, semakin sering/banyak pelanggan berbelanja di mall tersebut.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ====== Controls + Scatter Plot ====== -->
+            <div class="grid-layout grid-sidebar" style="margin-bottom: 24px;">
+
+                <!-- Sidebar: Controls -->
+                <div>
+                    <!-- Feature Selection -->
+                    <div class="glass-card animate-in animate-in-delay-1" style="margin-bottom: 16px;">
+                        <div class="card-header">
+                            <div class="card-icon violet">⚙️</div>
+                            <div>
+                                <div class="card-title">Konfigurasi Clustering</div>
+                                <div class="card-subtitle">Pilih fitur & parameter</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="featureX">Fitur Sumbu X</label>
+                            <select class="form-select" id="featureX">
+                                {% for col in numeric_cols %}
+                                <option value="{{ col }}" {% if col == 'Annual Income (k$)' %}selected{% endif %}>{{ col }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="featureY">Fitur Sumbu Y</label>
+                            <select class="form-select" id="featureY">
+                                {% for col in numeric_cols %}
+                                <option value="{{ col }}" {% if col == 'Spending Score (1-100)' %}selected{% endif %}>{{ col }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Jumlah Cluster (K)</label>
+                            <div class="range-wrapper">
+                                <input type="range" class="form-range" id="kSlider" 
+                                       min="2" max="10" value="5" 
+                                       oninput="updateKValue(this.value)">
+                                <div class="range-value" id="kValue">5</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="maxIter">Maksimum Iterasi</label>
+                            <input type="number" class="form-input" id="maxIter" value="300" min="10" max="1000">
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" id="useScaling">
+                                <label for="useScaling">Gunakan StandardScaler (normalisasi data)</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="glass-card animate-in animate-in-delay-2" style="margin-bottom: 16px;">
+                        <div class="card-header">
+                            <div class="card-icon green">🚀</div>
+                            <div>
+                                <div class="card-title">Jalankan Analisis</div>
+                                <div class="card-subtitle">Eksekusi K-Means & Elbow</div>
+                            </div>
+                        </div>
+
+                        <div class="btn-group" style="margin-bottom: 10px;">
+                            <button class="btn btn-primary btn-block" id="btnRun" onclick="runClustering()">
+                                <span class="spinner"></span>
+                                <span class="btn-text">▶ Run K-Means</span>
+                            </button>
+                        </div>
+                        <div class="btn-group" style="margin-bottom: 10px;">
+                            <button class="btn btn-success btn-block" id="btnElbow" onclick="runElbow()">
+                                <span class="spinner"></span>
+                                <span class="btn-text">📈 Elbow Method</span>
+                            </button>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-danger btn-block" onclick="resetAll()">
+                                🔄 Reset
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Result Info -->
+                    <div class="glass-card animate-in animate-in-delay-3" id="resultInfo" style="display:none;">
+                        <div class="card-header">
+                            <div class="card-icon amber">📊</div>
+                            <div>
+                                <div class="card-title">Hasil Clustering</div>
+                                <div class="card-subtitle">Informasi ringkasan</div>
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Jumlah K</span>
+                            <span class="info-value badge badge-violet" id="resultK">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Iterasi</span>
+                            <span class="info-value" id="resultIter">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Total WCSS</span>
+                            <span class="info-value" id="resultWCSS">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Fitur X</span>
+                            <span class="info-value" id="resultFeatureX" style="font-size:12px;">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Fitur Y</span>
+                            <span class="info-value" id="resultFeatureY" style="font-size:12px;">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main: Scatter Plot -->
+                <div class="glass-card animate-in animate-in-delay-2">
+                    <div class="card-header">
+                        <div class="card-icon violet">🎯</div>
+                        <div>
+                            <div class="card-title">Scatter Plot — Visualisasi Cluster</div>
+                            <div class="card-subtitle">Klik "Run K-Means" untuk melihat hasil clustering</div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="scatterCanvas" style="display:none;"></canvas>
+                        <div class="chart-placeholder" id="scatterPlaceholder">
+                            <div class="icon">🎯</div>
+                            <p>Pilih fitur dan klik <strong>"Run K-Means"</strong> untuk memulai clustering</p>
+                        </div>
+                    </div>
+
+                    <div class="cluster-legend" id="clusterLegend"></div>
+                </div>
+            </div>
+
+            <!-- ====== Elbow Chart + Cluster Stats ====== -->
+            <div class="grid-layout grid-2" style="margin-bottom: 24px;">
+
+                <!-- Elbow Chart -->
+                <div class="glass-card animate-in animate-in-delay-3">
+                    <div class="card-header">
+                        <div class="card-icon cyan">📈</div>
+                        <div>
+                            <div class="card-title">Elbow Method</div>
+                            <div class="card-subtitle">WCSS vs Jumlah Cluster (K)</div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="elbowCanvas" style="display:none;"></canvas>
+                        <div class="chart-placeholder" id="elbowPlaceholder">
+                            <div class="icon">📈</div>
+                            <p>Klik <strong>"Elbow Method"</strong> untuk menentukan K optimal</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cluster Stats Table -->
+                <div class="glass-card animate-in animate-in-delay-4" id="statsSection" style="display:none;">
+                    <div class="card-header">
+                        <div class="card-icon green">📋</div>
+                        <div>
+                            <div class="card-title">Statistik Per Cluster</div>
+                            <div class="card-subtitle">Ukuran, centroid, dan WCSS tiap cluster</div>
+                        </div>
+                    </div>
+
+                    <div class="data-preview-wrapper">
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Cluster</th>
+                                    <th>Jumlah</th>
+                                    <th>Centroid X</th>
+                                    <th>Centroid Y</th>
+                                    <th>WCSS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clusterStatsBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Placeholder when no cluster stats -->
+                <div class="glass-card animate-in animate-in-delay-4" id="statsPlaceholder">
+                    <div class="card-header">
+                        <div class="card-icon green">📋</div>
+                        <div>
+                            <div class="card-title">Statistik Per Cluster</div>
+                            <div class="card-subtitle">Detail masing-masing cluster</div>
+                        </div>
+                    </div>
+                    <div class="empty-state">
+                        <div class="icon">📊</div>
+                        <p>Jalankan clustering terlebih dahulu untuk melihat statistik cluster.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== Penjelasan Algoritma ====== -->
+            <div class="grid-layout grid-3" style="margin-bottom: 24px;">
+                <div class="glass-card animate-in animate-in-delay-1">
+                    <div class="card-header">
+                        <div class="card-icon violet">1️⃣</div>
+                        <div>
+                            <div class="card-title">Inisialisasi</div>
+                            <div class="card-subtitle">Langkah pertama K-Means</div>
+                        </div>
+                    </div>
+                    <p style="font-size:13px; color:var(--text-secondary); line-height:1.7;">
+                        Pilih <strong>K</strong> titik pusat (centroid) secara acak dari dataset. 
+                        Setiap centroid akan menjadi pusat awal dari masing-masing cluster.
+                        Pemilihan centroid awal mempengaruhi hasil akhir clustering.
+                    </p>
+                </div>
+
+                <div class="glass-card animate-in animate-in-delay-2">
+                    <div class="card-header">
+                        <div class="card-icon cyan">2️⃣</div>
+                        <div>
+                            <div class="card-title">Assignment</div>
+                            <div class="card-subtitle">Penugasan ke cluster</div>
+                        </div>
+                    </div>
+                    <p style="font-size:13px; color:var(--text-secondary); line-height:1.7;">
+                        Setiap data point dihitung jaraknya ke semua centroid menggunakan <strong>Euclidean Distance</strong>.
+                        Data point akan ditugaskan ke cluster dengan centroid terdekat.
+                    </p>
+                </div>
+
+                <div class="glass-card animate-in animate-in-delay-3">
+                    <div class="card-header">
+                        <div class="card-icon green">3️⃣</div>
+                        <div>
+                            <div class="card-title">Update</div>
+                            <div class="card-subtitle">Perbarui centroid</div>
+                        </div>
+                    </div>
+                    <p style="font-size:13px; color:var(--text-secondary); line-height:1.7;">
+                        Hitung ulang posisi centroid sebagai <strong>rata-rata</strong> dari semua data point dalam cluster.
+                        Ulangi langkah 2 & 3 hingga centroid tidak berubah (konvergen) atau mencapai iterasi maksimum.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>🎯 K-Means Clustering — Mall Customer Segmentation | Dataset: Mall_Customers.csv</p>
+            <p style="margin-top:4px;">Dibuat oleh Fedriko(1062412)</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+    <script>
+        const observer = new MutationObserver(() => {
+            const statsSection = document.getElementById('statsSection');
+            const placeholder = document.getElementById('statsPlaceholder');
+            if (statsSection && placeholder) {
+                placeholder.style.display = statsSection.style.display === 'block' ? 'none' : 'block';
+            }
+        });
+        const statsEl = document.getElementById('statsSection');
+        if (statsEl) observer.observe(statsEl, { attributes: true, attributeFilter: ['style'] });
+    </script>
+</body>
+</html>
