@@ -75,7 +75,7 @@ function updateDataPreview() {
     const tbody = document.getElementById('dataPreviewBody');
     if (!tbody) return;
 
-    const rows = currentData.data.slice(0, 15);
+    const rows = currentData.data;
     tbody.innerHTML = rows.map(row => `
         <tr>
             <td>${row['CustomerID']}</td>

@@ -29,8 +29,8 @@ def index():
     # Hanya kolom numerik yang bisa digunakan untuk clustering
     numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
     
-    # Preview data (10 baris pertama)
-    preview = df.head(10).to_dict(orient='records')
+    # Preview data (semua baris)
+    preview = df.to_dict(orient='records')
     
     return render_template('index.html', 
                            columns=columns,
