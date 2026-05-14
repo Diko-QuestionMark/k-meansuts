@@ -1,8 +1,3 @@
-// ============================================================
-// K-Means Clustering Website - Main Application Logic
-// ============================================================
-
-// --- Cluster Colors ---
 const CLUSTER_COLORS = [
     '#7c3aed', '#06b6d4', '#10b981', '#f59e0b', '#f43f5e',
     '#ec4899', '#8b5cf6', '#14b8a6', '#f97316', '#6366f1'
@@ -14,17 +9,11 @@ const CLUSTER_COLORS_RGBA = CLUSTER_COLORS.map(hex => {
     const b = parseInt(hex.slice(5, 7), 16);
     return { r, g, b };
 });
-
-// --- State ---
 let currentData = null;
 let clusterResult = null;
 let elbowData = null;
 let scatterChart = null;
 let elbowChart = null;
-
-// ============================================================
-// Utility Functions
-// ============================================================
 
 function showToast(message, type = 'info') {
     const container = document.getElementById('toastContainer');
@@ -54,10 +43,6 @@ function setLoading(btnId, loading) {
         btn.disabled = false;
     }
 }
-
-// ============================================================
-// Data Loading
-// ============================================================
 
 async function loadData() {
     try {
@@ -94,10 +79,6 @@ function updateStats() {
     const numCols = currentData.numeric_columns.length;
     document.getElementById('statFeatures').textContent = numCols;
 }
-
-// ============================================================
-// K-Means Clustering
-// ============================================================
 
 async function runClustering() {
     const featureX = document.getElementById('featureX').value;
@@ -143,10 +124,6 @@ async function runClustering() {
     }
 }
 
-// ============================================================
-// Elbow Method
-// ============================================================
-
 async function runElbow() {
     const featureX = document.getElementById('featureX').value;
     const featureY = document.getElementById('featureY').value;
@@ -185,10 +162,6 @@ async function runElbow() {
     }
 }
 
-// ============================================================
-// Draw Scatter Chart (Canvas)
-// ============================================================
-
 function drawScatterChart() {
     if (!clusterResult) return;
 
@@ -197,8 +170,6 @@ function drawScatterChart() {
     const placeholder = document.getElementById('scatterPlaceholder');
     if (placeholder) placeholder.style.display = 'none';
     canvas.style.display = 'block';
-
-    // Set canvas size
     const width = container.clientWidth;
     const height = Math.max(450, width * 0.55);
     canvas.width = width * 2; // retina
@@ -215,8 +186,6 @@ function drawScatterChart() {
 
     const points = clusterResult.points;
     const centroids = clusterResult.centroids;
-
-    // Compute ranges
     const xValues = points.map(p => p.x);
     const yValues = points.map(p => p.y);
     const xMin = Math.min(...xValues) - 5;
@@ -226,15 +195,9 @@ function drawScatterChart() {
 
     const scaleX = (v) => padding.left + ((v - xMin) / (xMax - xMin)) * chartW;
     const scaleY = (v) => padding.top + chartH - ((v - yMin) / (yMax - yMin)) * chartH;
-
-    // Clear
     ctx.clearRect(0, 0, width, height);
-
-    // Background
     ctx.fillStyle = 'rgba(10, 14, 26, 0.9)';
     ctx.fillRect(0, 0, width, height);
-
-    // Grid lines
     ctx.strokeStyle = 'rgba(124, 58, 237, 0.08)';
     ctx.lineWidth = 1;
     const xTicks = 8;
@@ -267,8 +230,6 @@ function drawScatterChart() {
         ctx.textAlign = 'right';
         ctx.fillText(Math.round(val), padding.left - 10, y + 4);
     }
-
-    // Axis labels
     ctx.fillStyle = 'rgba(136, 146, 176, 0.9)';
     ctx.font = '13px Inter, sans-serif';
     ctx.textAlign = 'center';
@@ -279,51 +240,35 @@ function drawScatterChart() {
     ctx.rotate(-Math.PI / 2);
     ctx.fillText(clusterResult.feature_y, 0, 0);
     ctx.restore();
-
-    // Draw data points
     points.forEach(p => {
         const x = scaleX(p.x);
         const y = scaleY(p.y);
         const color = CLUSTER_COLORS_RGBA[p.cluster % CLUSTER_COLORS_RGBA.length];
-
-        // Glow
         ctx.beginPath();
         ctx.arc(x, y, 8, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 0.15)`;
         ctx.fill();
-
-        // Point
         ctx.beginPath();
         ctx.arc(x, y, 5, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 0.85)`;
         ctx.fill();
-
-        // Border
         ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 1)`;
         ctx.lineWidth = 1.5;
         ctx.stroke();
     });
-
-    // Draw centroids
     centroids.forEach((c, i) => {
         const x = scaleX(c.x);
         const y = scaleY(c.y);
         const color = CLUSTER_COLORS_RGBA[i % CLUSTER_COLORS_RGBA.length];
-
-        // Outer glow ring
         ctx.beginPath();
         ctx.arc(x, y, 20, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 0.1)`;
         ctx.fill();
-
-        // Middle ring
         ctx.beginPath();
         ctx.arc(x, y, 14, 0, Math.PI * 2);
         ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 0.5)`;
         ctx.lineWidth = 2;
         ctx.stroke();
-
-        // Diamond centroid marker
         ctx.save();
         ctx.translate(x, y);
         ctx.rotate(Math.PI / 4);
@@ -333,21 +278,15 @@ function drawScatterChart() {
         ctx.lineWidth = 2;
         ctx.strokeRect(-6, -6, 12, 12);
         ctx.restore();
-
-        // Label
         ctx.fillStyle = 'white';
         ctx.font = 'bold 11px Inter, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(`C${i + 1}`, x, y - 22);
     });
-
-    // Title
     ctx.fillStyle = 'rgba(232, 234, 246, 0.9)';
     ctx.font = 'bold 15px Inter, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(`K-Means Clustering (K=${clusterResult.k})`, width / 2, 24);
-
-    // Legend
     updateLegend();
 }
 
@@ -363,10 +302,6 @@ function updateLegend() {
         </div>
     `).join('');
 }
-
-// ============================================================
-// Draw Elbow Chart (Canvas)
-// ============================================================
 
 function drawElbowChart() {
     if (!elbowData || elbowData.length === 0) return;
@@ -398,13 +333,9 @@ function drawElbowChart() {
 
     const scaleX = (k) => padding.left + ((k - 1) / (kValues.length - 1)) * chartW;
     const scaleY = (w) => padding.top + chartH - ((w - minWCSS) / (maxWCSS - minWCSS)) * chartH;
-
-    // Clear
     ctx.clearRect(0, 0, width, height);
     ctx.fillStyle = 'rgba(10, 14, 26, 0.9)';
     ctx.fillRect(0, 0, width, height);
-
-    // Grid
     ctx.strokeStyle = 'rgba(124, 58, 237, 0.08)';
     ctx.lineWidth = 1;
     for (let i = 0; i < 6; i++) {
@@ -420,8 +351,6 @@ function drawElbowChart() {
         ctx.textAlign = 'right';
         ctx.fillText(Math.round(val).toLocaleString(), padding.left - 10, y + 4);
     }
-
-    // Gradient fill under line
     const gradient = ctx.createLinearGradient(0, padding.top, 0, padding.top + chartH);
     gradient.addColorStop(0, 'rgba(124, 58, 237, 0.15)');
     gradient.addColorStop(1, 'rgba(124, 58, 237, 0.01)');
@@ -436,8 +365,6 @@ function drawElbowChart() {
     ctx.closePath();
     ctx.fillStyle = gradient;
     ctx.fill();
-
-    // Line
     ctx.beginPath();
     ctx.moveTo(scaleX(kValues[0]), scaleY(wcssValues[0]));
     for (let i = 1; i < kValues.length; i++) {
@@ -447,19 +374,13 @@ function drawElbowChart() {
     ctx.lineWidth = 3;
     ctx.lineJoin = 'round';
     ctx.stroke();
-
-    // Points
     kValues.forEach((k, i) => {
         const x = scaleX(k);
         const y = scaleY(wcssValues[i]);
-
-        // Glow
         ctx.beginPath();
         ctx.arc(x, y, 10, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(124, 58, 237, 0.2)';
         ctx.fill();
-
-        // Dot
         ctx.beginPath();
         ctx.arc(x, y, 5, 0, Math.PI * 2);
         ctx.fillStyle = '#a78bfa';
@@ -467,15 +388,11 @@ function drawElbowChart() {
         ctx.strokeStyle = '#7c3aed';
         ctx.lineWidth = 2;
         ctx.stroke();
-
-        // K label
         ctx.fillStyle = 'rgba(136, 146, 176, 0.8)';
         ctx.font = '12px Inter, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(`K=${k}`, x, padding.top + chartH + 20);
     });
-
-    // Axis labels
     ctx.fillStyle = 'rgba(136, 146, 176, 0.9)';
     ctx.font = '13px Inter, sans-serif';
     ctx.textAlign = 'center';
@@ -486,17 +403,11 @@ function drawElbowChart() {
     ctx.rotate(-Math.PI / 2);
     ctx.fillText('WCSS (Within-Cluster Sum of Squares)', 0, 0);
     ctx.restore();
-
-    // Title
     ctx.fillStyle = 'rgba(232, 234, 246, 0.9)';
     ctx.font = 'bold 15px Inter, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('Elbow Method - Optimal K', width / 2, 24);
 }
-
-// ============================================================
-// Update UI Components
-// ============================================================
 
 function updateClusterStats() {
     if (!clusterResult) return;
@@ -515,8 +426,6 @@ function updateClusterStats() {
             <td>${cs.wcss.toLocaleString()}</td>
         </tr>
     `).join('');
-
-    // Show stats section
     document.getElementById('statsSection').style.display = 'block';
 }
 
@@ -532,51 +441,31 @@ function updateResultInfo() {
     document.getElementById('resultInfo').style.display = 'block';
 }
 
-// ============================================================
-// Slider Update
-// ============================================================
-
 function updateKValue(val) {
     document.getElementById('kValue').textContent = val;
 }
 
-// ============================================================
-// Reset
-// ============================================================
-
 function resetAll() {
     clusterResult = null;
     elbowData = null;
-
-    // Hide scatter
     const scatterCanvas = document.getElementById('scatterCanvas');
     const scatterPlaceholder = document.getElementById('scatterPlaceholder');
     if (scatterCanvas) scatterCanvas.style.display = 'none';
     if (scatterPlaceholder) scatterPlaceholder.style.display = 'flex';
-
-    // Hide elbow
     const elbowCanvas = document.getElementById('elbowCanvas');
     const elbowPlaceholder = document.getElementById('elbowPlaceholder');
     if (elbowCanvas) elbowCanvas.style.display = 'none';
     if (elbowPlaceholder) elbowPlaceholder.style.display = 'flex';
-
-    // Hide results
     const statsSection = document.getElementById('statsSection');
     if (statsSection) statsSection.style.display = 'none';
 
     const resultInfo = document.getElementById('resultInfo');
     if (resultInfo) resultInfo.style.display = 'none';
-
-    // Clear legend
     const legend = document.getElementById('clusterLegend');
     if (legend) legend.innerHTML = '';
 
     showToast('Reset berhasil!', 'info');
 }
-
-// ============================================================
-// Window Resize Handler
-// ============================================================
 
 let resizeTimeout;
 window.addEventListener('resize', () => {
@@ -586,10 +475,6 @@ window.addEventListener('resize', () => {
         if (elbowData) drawElbowChart();
     }, 200);
 });
-
-// ============================================================
-// Initialize
-// ============================================================
 
 document.addEventListener('DOMContentLoaded', () => {
     loadData();
