@@ -1,9 +1,13 @@
+/* ============================================================
+   K-Means Clustering Website - Dark Glassmorphism Theme
+   Font: Inter (Google Fonts)
+   Colors: Deep Navy + Violet/Cyan Accent
+   ============================================================ */
 
-
-
+/* ---------- Google Font Import ---------- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-
+/* ---------- CSS Variables ---------- */
 :root {
     --bg-primary: #0a0e1a;
     --bg-secondary: #0f1629;
@@ -35,7 +39,7 @@
     --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-spring: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 
-    
+    /* Cluster Colors */
     --cluster-0: #7c3aed;
     --cluster-1: #06b6d4;
     --cluster-2: #10b981;
@@ -48,7 +52,7 @@
     --cluster-9: #6366f1;
 }
 
-
+/* ---------- Reset & Base ---------- */
 *, *::before, *::after {
     margin: 0;
     padding: 0;
@@ -68,7 +72,7 @@ body {
     line-height: 1.6;
 }
 
-
+/* ---------- Animated Background ---------- */
 body::before {
     content: '';
     position: fixed;
@@ -84,7 +88,7 @@ body::before {
     pointer-events: none;
 }
 
-
+/* ---------- Scrollbar ---------- */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -100,7 +104,7 @@ body::before {
     background: var(--accent-violet-light);
 }
 
-
+/* ---------- Container ---------- */
 .container {
     max-width: 1400px;
     margin: 0 auto;
@@ -109,7 +113,7 @@ body::before {
     z-index: 1;
 }
 
-
+/* ---------- Header / Navbar ---------- */
 .navbar {
     padding: 16px 0;
     position: sticky;
@@ -171,7 +175,7 @@ body::before {
     color: var(--accent-violet-light);
 }
 
-
+/* ---------- Hero Section ---------- */
 .hero {
     text-align: center;
     padding: 60px 0 40px;
@@ -215,7 +219,7 @@ body::before {
     animation: fadeInUp 0.6s ease-out 0.2s both;
 }
 
-
+/* ---------- Stats Bar ---------- */
 .stats-bar {
     display: flex;
     justify-content: center;
@@ -245,7 +249,7 @@ body::before {
     margin-top: 2px;
 }
 
-
+/* ---------- Glass Card ---------- */
 .glass-card {
     background: var(--bg-card);
     backdrop-filter: blur(12px);
@@ -300,7 +304,7 @@ body::before {
     margin-top: 2px;
 }
 
-
+/* ---------- Main Layout ---------- */
 .main-content {
     padding: 20px 0 60px;
 }
@@ -322,7 +326,7 @@ body::before {
     grid-template-columns: 340px 1fr;
 }
 
-
+/* ---------- Form Controls ---------- */
 .form-group {
     margin-bottom: 16px;
 }
@@ -371,7 +375,7 @@ body::before {
     box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
 }
 
-
+/* Slider / Range */
 .range-wrapper {
     display: flex;
     align-items: center;
@@ -420,7 +424,7 @@ body::before {
     color: var(--accent-violet-light);
 }
 
-
+/* Checkbox */
 .form-check {
     display: flex;
     align-items: center;
@@ -442,7 +446,7 @@ body::before {
     cursor: pointer;
 }
 
-
+/* ---------- Buttons ---------- */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -527,7 +531,7 @@ body::before {
     transform: none !important;
 }
 
-
+/* Loading spinner inside button */
 .btn .spinner {
     width: 16px;
     height: 16px;
@@ -546,7 +550,7 @@ body::before {
     display: none;
 }
 
-
+/* ---------- Chart Container ---------- */
 .chart-container {
     position: relative;
     width: 100%;
@@ -581,7 +585,7 @@ body::before {
     font-size: 14px;
 }
 
-
+/* ---------- Results Table ---------- */
 .results-table {
     width: 100%;
     border-collapse: separate;
@@ -630,7 +634,7 @@ body::before {
     border-radius: var(--radius-md);
 }
 
-
+/* ---------- Cluster Legend ---------- */
 .cluster-legend {
     display: flex;
     flex-wrap: wrap;
@@ -657,7 +661,7 @@ body::before {
     flex-shrink: 0;
 }
 
-
+/* ---------- Info Badge ---------- */
 .info-row {
     display: flex;
     align-items: center;
@@ -703,7 +707,7 @@ body::before {
     border: 1px solid rgba(124, 58, 237, 0.3);
 }
 
-
+/* ---------- Section Divider ---------- */
 .section-divider {
     height: 1px;
     background: var(--border-glass);
@@ -719,7 +723,7 @@ body::before {
     gap: 10px;
 }
 
-
+/* ---------- Footer ---------- */
 .footer {
     text-align: center;
     padding: 32px 0;
@@ -737,7 +741,7 @@ body::before {
     text-decoration: underline;
 }
 
-
+/* ---------- Animations ---------- */
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -789,7 +793,7 @@ body::before {
 .animate-in-delay-3 { animation-delay: 0.3s; }
 .animate-in-delay-4 { animation-delay: 0.4s; }
 
-
+/* ---------- Responsive ---------- */
 @media (max-width: 1024px) {
     .grid-sidebar {
         grid-template-columns: 1fr;
@@ -818,7 +822,7 @@ body::before {
     }
 }
 
-
+/* ---------- Toast / Notification ---------- */
 .toast-container {
     position: fixed;
     top: 80px;
@@ -849,7 +853,7 @@ body::before {
 .toast.error { border-left: 3px solid var(--accent-rose); }
 .toast.info { border-left: 3px solid var(--accent-cyan); }
 
-
+/* ---------- Progress indicator ---------- */
 .progress-bar {
     height: 3px;
     background: rgba(124, 58, 237, 0.2);
@@ -865,7 +869,7 @@ body::before {
     transition: width 0.3s ease;
 }
 
-
+/* ---------- Empty State ---------- */
 .empty-state {
     display: flex;
     flex-direction: column;
